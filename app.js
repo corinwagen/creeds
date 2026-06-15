@@ -1,5 +1,3 @@
-const data = window.WCF_DATA;
-
 const editorialNotes = {
   chapter: {
     1: "Unlike the <a href=\"https://en.wikipedia.org/wiki/Thirty-nine_Articles\">Thirty-nine Articles</a>, Westminster begins with Scripture rather than the doctrine of God; this signals its strongly Reformed account of authority.",
@@ -88,7 +86,37 @@ const editorialNotes = {
   }
 };
 
+function slugify(value) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+const documents = [
+  {
+    ...window.WCF_DATA,
+    slug: "westminster-confession",
+    shortTitle: "Westminster",
+    mark: "W",
+    unitLabel: "Chapter",
+    notes: editorialNotes
+  },
+  window.ECUMENICAL_CREEDS_DATA,
+  ...window.WESTMINSTER_CATECHISMS_DATA,
+  ...window.THREE_FORMS_DATA,
+  window.ANGLICAN_ARTICLES_DATA
+];
+
+function getInitialDocument() {
+  const slug = new URLSearchParams(window.location.search).get("doc");
+  return documents.find((document) => document.slug === slug) || documents[0];
+}
+
+let currentDocument = getInitialDocument();
+
 const content = document.querySelector("#content");
+const documentNav = document.querySelector("#document-nav");
 const nav = document.querySelector("#chapter-nav");
 const search = document.querySelector("#search");
 const proofToggle = document.querySelector("#proof-toggle");
@@ -97,6 +125,11 @@ const progressPercent = document.querySelector("#progress-percent");
 const progressWords = document.querySelector("#progress-words");
 const mobileMenuToggle = document.querySelector("#mobile-menu-toggle");
 const sidebar = document.querySelector(".sidebar");
+const printerMark = document.querySelector(".printer-mark");
+const brandTitle = document.querySelector("#brand-title");
+const readerTitle = document.querySelector("#reader-title");
+const readerSubtitle = document.querySelector("#reader-subtitle");
+const readerDescription = document.querySelector("#reader-description");
 
 function countWords(text) {
   const words = text
@@ -105,28 +138,37 @@ function countWords(text) {
   return words ? words.length : 0;
 }
 
-const sectionWordIndex = new Map();
+let sectionWordIndex = new Map();
 let totalWords = 0;
 
-for (const chapter of data.chapters) {
-  for (const section of chapter.sections) {
-    const key = `${chapter.number}.${section.number}`;
-    const words = countWords(section.text);
-    sectionWordIndex.set(key, {
-      start: totalWords,
-      end: totalWords + words,
-      words
-    });
-    totalWords += words;
+function prepareWordIndex() {
+  sectionWordIndex = new Map();
+  totalWords = 0;
+
+  for (const chapter of currentDocument.chapters) {
+    for (const section of chapter.sections) {
+      const key = sectionKey(chapter, section);
+      const words = countWords(section.text);
+      sectionWordIndex.set(key, {
+        start: totalWords,
+        end: totalWords + words,
+        words
+      });
+      totalWords += words;
+    }
   }
 }
 
 function chapterId(chapter) {
-  return `chapter-${String(chapter.number).padStart(2, "0")}`;
+  return `${currentDocument.slug}-chapter-${String(chapter.number).padStart(2, "0")}`;
 }
 
 function sectionId(chapter, section) {
-  return `wcf-${chapter.number}-${section.number}`;
+  return `${currentDocument.slug}-${chapter.number}-${section.number}`;
+}
+
+function sectionKey(chapter, section) {
+  return `${currentDocument.slug}:${chapter.number}.${section.number}`;
 }
 
 function escapeHtml(value) {
@@ -154,7 +196,7 @@ function proofUrl(text) {
 }
 
 function renderProofs(section) {
-  if (!proofToggle.checked || section.proofs.length === 0) {
+  if (!proofToggle.checked || !section.proofs || section.proofs.length === 0) {
     return "";
   }
 
@@ -186,14 +228,23 @@ function renderNotes(chapter, section) {
   }
 
   const notes = [];
-  const chapterNote = editorialNotes.chapter[chapter.number];
-  const sectionNote = editorialNotes.section[`${chapter.number}.${section.number}`];
+  const chapterNote = currentDocument.notes?.chapter?.[chapter.number];
+  const sectionNote = currentDocument.notes?.section?.[`${chapter.number}.${section.number}`];
 
   if (section.number === 1 && chapterNote) {
     notes.push(chapterNote);
   }
   if (sectionNote) {
     notes.push(sectionNote);
+  }
+  if (section.notes) {
+    notes.push(...section.notes);
+  }
+  const source = chapter.source || (chapter.number === 1 ? currentDocument.source : null);
+  if (section.number === 1 && source?.url) {
+    notes.push(
+      `Source: <a href="${escapeHtml(source.url)}">${escapeHtml(source.name || source.url)}</a>.`
+    );
   }
 
   if (notes.length === 0) {
@@ -215,9 +266,12 @@ function sectionMatches(chapter, section, query) {
   const haystack = [
     chapter.roman,
     chapter.title,
+    chapter.kicker || "",
     section.roman,
+    section.title || "",
     section.text,
-    ...section.proofs.map((proof) => proof.text)
+    ...(section.proofs || []).map((proof) => proof.text),
+    ...(section.notes || [])
   ]
     .join(" ")
     .toLowerCase();
@@ -229,7 +283,7 @@ function chapterMatches(chapter, query) {
 }
 
 function renderNav(query = "") {
-  nav.innerHTML = data.chapters
+  nav.innerHTML = currentDocument.chapters
     .filter((chapter) => chapterMatches(chapter, query))
     .map(
       (chapter) => `
@@ -242,11 +296,45 @@ function renderNav(query = "") {
     .join("");
 }
 
+function renderDocumentNav() {
+  documentNav.innerHTML = documents
+    .map(
+      (document) => `
+        <button class="${document === currentDocument ? "active" : ""}" type="button" data-document="${document.slug}">
+          <span>${escapeHtml(document.mark || document.shortTitle.slice(0, 1))}</span>
+          <strong>${escapeHtml(document.shortTitle || document.title)}</strong>
+        </button>
+      `
+    )
+    .join("");
+}
+
+function documentHasProofs(document) {
+  return document.chapters.some((chapter) =>
+    chapter.sections.some((section) => section.proofs && section.proofs.length > 0)
+  );
+}
+
+function renderReaderHeader() {
+  printerMark.textContent = currentDocument.mark || currentDocument.shortTitle?.slice(0, 1) || "C";
+  brandTitle.textContent = currentDocument.shortTitle || currentDocument.title;
+  readerTitle.textContent = currentDocument.title;
+  readerSubtitle.textContent = currentDocument.edition || "";
+  readerDescription.textContent = currentDocument.description || "";
+  readerDescription.hidden = !currentDocument.description;
+
+  const hasProofs = documentHasProofs(currentDocument);
+  proofToggle.disabled = !hasProofs;
+  proofToggle.closest("label").classList.toggle("is-disabled", !hasProofs);
+}
+
 function renderContent() {
   const query = search.value.trim().toLowerCase();
+  renderReaderHeader();
+  renderDocumentNav();
   renderNav(query);
 
-  const chapters = data.chapters.filter((chapter) => chapterMatches(chapter, query));
+  const chapters = currentDocument.chapters.filter((chapter) => chapterMatches(chapter, query));
 
   if (chapters.length === 0) {
     content.innerHTML = `
@@ -255,16 +343,19 @@ function renderContent() {
         <p>Try a doctrine, chapter title, or a shorter scripture reference.</p>
       </section>
     `;
+    observeChapters();
+    requestProgressUpdate();
     return;
   }
 
   content.innerHTML = chapters
     .map((chapter) => {
       const sections = chapter.sections.filter((section) => sectionMatches(chapter, section, query));
+      const headingLabel = chapter.kicker || `${currentDocument.unitLabel || "Chapter"} ${chapter.roman}`;
       return `
         <section id="${chapterId(chapter)}" class="chapter">
           <header class="chapter-heading">
-            <p>Chapter ${chapter.roman}</p>
+            <p>${escapeHtml(headingLabel)}</p>
             <h3>${escapeHtml(chapter.title)}</h3>
           </header>
 
@@ -276,6 +367,11 @@ function renderContent() {
                     <a class="section-label" href="#${sectionId(chapter, section)}">
                       ${chapter.roman}.${section.roman}
                     </a>
+                    ${
+                      section.title
+                        ? `<h4 class="section-title">${escapeHtml(section.title)}</h4>`
+                        : ""
+                    }
                     ${renderText(section.text)}
                   </div>
                   <aside class="marginalia">
@@ -372,10 +468,10 @@ function observeChapters() {
 }
 
 function addProgressData() {
-  for (const chapter of data.chapters) {
+  for (const chapter of currentDocument.chapters) {
     for (const section of chapter.sections) {
       const element = document.querySelector(`#${sectionId(chapter, section)}`);
-      const progress = sectionWordIndex.get(`${chapter.number}.${section.number}`);
+      const progress = sectionWordIndex.get(sectionKey(chapter, section));
       if (!element || !progress) {
         continue;
       }
@@ -444,6 +540,26 @@ function updateProgress() {
 search.addEventListener("input", renderContent);
 proofToggle.addEventListener("change", renderContent);
 noteToggle.addEventListener("change", renderContent);
+documentNav.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-document]");
+  if (!button) {
+    return;
+  }
+
+  const nextDocument = documents.find((document) => document.slug === button.dataset.document);
+  if (!nextDocument || nextDocument === currentDocument) {
+    return;
+  }
+
+  currentDocument = nextDocument;
+  const url = new URL(window.location.href);
+  url.searchParams.set("doc", currentDocument.slug);
+  window.history.replaceState(null, "", url);
+  search.value = "";
+  prepareWordIndex();
+  renderContent();
+  window.scrollTo({ top: 0, behavior: "auto" });
+});
 mobileMenuToggle.addEventListener("click", () => {
   const isOpen = sidebar.classList.toggle("nav-open");
   mobileMenuToggle.setAttribute("aria-expanded", String(isOpen));
@@ -453,4 +569,5 @@ mobileMenuToggle.addEventListener("click", () => {
 window.addEventListener("scroll", requestProgressUpdate, { passive: true });
 window.addEventListener("resize", requestProgressUpdate);
 
+prepareWordIndex();
 renderContent();

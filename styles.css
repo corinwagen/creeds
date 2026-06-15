@@ -126,6 +126,54 @@ input {
   display: contents;
 }
 
+.document-nav {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35em;
+}
+
+.document-nav button {
+  display: grid;
+  grid-template-columns: 1.65rem minmax(0, 1fr);
+  gap: 0.45em;
+  align-items: center;
+  width: 100%;
+  min-height: 2.15rem;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  padding: 0.3em 0.5em;
+  background: var(--page);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.document-nav button.active {
+  border-color: black;
+  background: black;
+  color: white;
+}
+
+.document-nav span {
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border: 1px solid currentColor;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+.document-nav strong {
+  overflow: hidden;
+  font-size: 0.82rem;
+  font-weight: 550;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .search-label {
   color: var(--muted);
   font-size: 0.82rem;
@@ -166,6 +214,10 @@ input {
 
 .toggles input {
   accent-color: black;
+}
+
+.toggles label.is-disabled {
+  color: #999999;
 }
 
 .chapter-nav {
@@ -243,7 +295,7 @@ input {
   font-size: 0.92rem;
 }
 
-.reader-header p:not(.eyebrow):not(.reader-subtitle) {
+.reader-description {
   max-width: var(--measure);
   margin: 0.6em 0;
   color: var(--muted);
@@ -308,6 +360,14 @@ input {
 .section-label:hover {
   color: black;
   text-decoration: underline;
+}
+
+.section-title {
+  margin: 0 0 0.4em;
+  color: black;
+  font-size: 0.94rem;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
 .section-body p {
@@ -498,13 +558,23 @@ sup {
     display: grid;
   }
 
+  .document-nav {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .document-nav button {
+    min-height: 2rem;
+  }
+
   .search-label {
     display: none;
   }
 
   .search {
     grid-column: 1 / -1;
-    grid-row: 1;
+    grid-row: 2;
     min-height: 2.15rem;
     padding: 0.45em 0.55em;
     font-size: 0.88rem;
@@ -512,7 +582,7 @@ sup {
 
   .toggles {
     grid-column: 2;
-    grid-row: 2;
+    grid-row: 3;
     width: 8.6rem;
     gap: 0.3em;
   }
@@ -525,7 +595,7 @@ sup {
 
   .chapter-nav {
     grid-column: 1 / -1;
-    grid-row: 3;
+    grid-row: 4;
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: minmax(8.75rem, 11rem);
@@ -605,6 +675,11 @@ sup {
     font-size: 0.84rem;
   }
 
+  .reader-description {
+    max-width: 100%;
+    font-size: 0.86rem;
+  }
+
   .chapter-heading,
   .confession-section {
     grid-template-columns: minmax(0, 1fr);
@@ -648,14 +723,18 @@ sup {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .document-nav {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .toggles {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 3;
     width: 100%;
   }
 
   .chapter-nav {
-    grid-row: 3;
+    grid-row: 4;
     grid-auto-columns: minmax(7.25rem, 9.5rem);
   }
 

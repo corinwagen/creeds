@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>The Westminster Confession of Faith | Reader Edition</title>
+    <title>Creeds and Confessions | Reader Edition</title>
     <meta
       name="description"
-      content="A browser reader edition of the Westminster Confession of Faith with marginal proof texts, cross references, left navigation, and editorial notes."
+      content="A browser reader edition of the Westminster Confession of Faith and ecumenical Christian creeds with navigation, search, proof texts, and editorial notes."
     >
     <link rel="stylesheet" href="styles.css">
   </head>
@@ -21,7 +21,7 @@
         <div class="printer-mark" aria-hidden="true">W</div>
         <div>
           <p class="eyebrow">Reader Edition</p>
-          <h1>Westminster Confession</h1>
+          <h1 id="brand-title">Creeds and Confessions</h1>
         </div>
       </div>
 
@@ -30,6 +30,8 @@
       </button>
 
       <div id="mobile-nav-panel" class="mobile-nav-panel">
+        <nav id="document-nav" class="document-nav" aria-label="Documents"></nav>
+
         <label class="search-label" for="search">Search text and references</label>
         <input id="search" class="search" type="search" placeholder="Try justification, Sabbath, Rom 8">
 
@@ -44,8 +46,9 @@
 
     <main class="reader">
       <header class="reader-header">
-        <h2>The Westminster Confession of Faith</h2>
-        <p class="reader-subtitle">1646-1647 proof-text edition</p>
+        <h2 id="reader-title">The Westminster Confession of Faith</h2>
+        <p id="reader-subtitle" class="reader-subtitle">1646-1647 proof-text edition</p>
+        <p id="reader-description" class="reader-description"></p>
       </header>
 
       <div id="content" class="content" aria-live="polite"></div>
@@ -55,7 +58,11 @@
       </footer>
     </main>
 
-    <script src="wcf-data.js"></script>
+    <script src="data/wcf-data.js"></script>
+    <script src="data/ecumenical-creeds.js"></script>
+    <script src="data/westminster-catechisms.js"></script>
+    <script src="data/three-forms.js"></script>
+    <script src="data/anglican-articles.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
