@@ -86,6 +86,99 @@ const editorialNotes = {
   }
 };
 
+const supplementalNotes = {
+  "ecumenical-creeds": {
+    chapter: {
+      1: "The Apostles' Creed is a compact Western baptismal rule of faith. Its received form is later than the apostles themselves, but it preserves the basic Trinitarian and christological outline of early Christian confession.",
+      2: "The Nicene Creed of 325 was framed against Arian accounts of the Son as a creature. Its key term, of one substance, confesses the Son's full deity with the Father.",
+      3: "The 381 Constantinopolitan form expands the Nicene confession, especially on the Holy Spirit and the Church. This reader gives the Greek conciliar form without the later Western Filioque addition.",
+      4: "Chalcedon guards both the unity of Christ's person and the distinction of his divine and human natures. Its four adverbs are meant to rule out both division and confusion.",
+      5: "The Athanasian Creed is a Western catholic summary of Trinitarian and christological orthodoxy. Despite the traditional name, it was not written by Athanasius."
+    },
+    section: {
+      "5.2": "The second half applies the same logic of unity and distinction to the incarnation: Christ is one person, fully God and fully man."
+    }
+  },
+  "westminster-shorter-catechism": {
+    chapter: {
+      1: "The Shorter Catechism begins with human purpose, then Scripture and God. Its opening answer became one of the best-known summaries of Reformed piety.",
+      2: "These questions move from creation into the fall, using covenant headship to explain sin and misery.",
+      3: "This section condenses the order of salvation: Christ's person, offices, humiliation, exaltation, and the benefits applied to believers.",
+      4: "The catechism expounds obedience through the moral law, especially the Ten Commandments.",
+      5: "The ordinary outward means of grace are the Word, sacraments, and prayer.",
+      6: "The Lord's Prayer is treated as a pattern for Christian desire, not merely a text to recite."
+    }
+  },
+  "westminster-larger-catechism": {
+    chapter: {
+      1: "The Larger Catechism opens with the same end as the Shorter Catechism, but immediately gives a fuller account of revelation and Scripture.",
+      2: "This long doctrinal section moves from theology proper through creation, providence, sin, covenant, Christ, and the application of redemption.",
+      3: "The Larger Catechism gives a detailed moral theology of the Ten Commandments, including duties required and sins forbidden.",
+      4: "The outward means of grace are treated at greater length than in the Shorter Catechism, especially the sacraments.",
+      5: "The prayer section expands both the nature of prayer and the petitions of the Lord's Prayer."
+    }
+  },
+  "heidelberg-catechism": {
+    chapter: {
+      1: "Heidelberg opens pastorally with comfort in Christ rather than with a definition of God or Scripture.",
+      2: "The catechism's first major part is misery: knowledge of sin through God's law.",
+      5: "The second major part, redemption, begins by asking what kind of mediator sinners need.",
+      7: "The Apostles' Creed structures Heidelberg's account of Christian faith.",
+      8: "The Trinity is taught through the Creed's threefold structure: Father, Son, and Holy Spirit.",
+      23: "Heidelberg's account of justification is explicitly forensic: believers are righteous before God only by true faith in Christ.",
+      25: "The means of grace section joins Word and sacraments as the Spirit's ordinary instruments for strengthening faith.",
+      30: "Question 80 is historically controversial because of its anti-Roman polemic and its development across early editions.",
+      32: "The third major part, gratitude, frames obedience as the fruit of deliverance rather than the ground of acceptance.",
+      45: "Heidelberg treats prayer as the chief part of thankfulness, then expounds the Lord's Prayer."
+    },
+    chapterDefault:
+      "Heidelberg is arranged by Lord's Days for weekly catechetical instruction; each unit gathers related questions for teaching and preaching."
+  },
+  "belgic-confession": {
+    chapter: {
+      1: "Belgic begins with God rather than Scripture, following a more classical confessional order than Westminster.",
+      2: "This article joins general revelation and special revelation while insisting that Scripture gives the saving clarity needed for God's glory and our salvation.",
+      7: "The sufficiency of Scripture is central to Belgic's Protestant identity against claims that unwritten tradition can bind the Church as doctrine.",
+      8: "The confession receives classical Trinitarian language and rejects both modalism and anti-Trinitarian reductions.",
+      14: "The fall is treated as real corruption of human nature, not merely bad example or social disorder.",
+      16: "Belgic's election article is shorter than Dort's later treatment but already clearly Reformed in shape.",
+      22: "Justification is by faith as the instrument receiving Christ, not by faith as a meritorious work.",
+      27: "The church articles distinguish the catholic Church from any single institution while still insisting on visible marks.",
+      29: "The marks of the true church are pure preaching, proper administration of sacraments, and discipline.",
+      34: "The baptism article reflects Reformed covenant theology and explicitly defends infant baptism.",
+      35: "The Lord's Supper article rejects both bare memorialism and a local bodily presence in the elements.",
+      36: "This civil magistrate article has been revised or qualified in some later Reformed church contexts because of religious liberty questions."
+    },
+    chapterDefault:
+      "The Belgic Confession states Reformed doctrine article by article in the setting of sixteenth-century controversy and persecution."
+  },
+  "canons-of-dort": {
+    chapter: {
+      1: "The first head addresses divine election and reprobation in response to Remonstrant objections.",
+      2: "The second head treats Christ's death as sufficient for all and effectual for the elect.",
+      3: "The combined third and fourth heads treat human corruption and effectual conversion together.",
+      4: "The fifth head teaches perseverance while still taking believers' real falls and temptations seriously."
+    }
+  },
+  "thirty-nine-articles": {
+    chapter: {
+      1: "The Articles open with a catholic doctrine of the Trinity, showing that Anglican confession begins from shared creedal orthodoxy.",
+      6: "Article VI is a classic Anglican statement of Scriptural sufficiency: nothing may be required as necessary to salvation unless it is read in or proved from Scripture.",
+      11: "Article XI gives the Protestant doctrine of justification in compact form.",
+      17: "The predestination article is deliberately pastoral in tone, warning against both despair and careless speculation.",
+      19: "The visible church is defined by Word and sacrament rather than by a claim to institutional indefectibility.",
+      21: "Article XXI denies that general councils are intrinsically infallible; their decrees bind only insofar as they are grounded in Scripture.",
+      22: "This article rejects several late medieval devotional and doctrinal practices as lacking warrant from Scripture.",
+      25: "The sacramental article recognizes two dominical sacraments while distinguishing them from other rites commonly called sacraments.",
+      28: "The Lord's Supper article rejects transubstantiation while affirming a real spiritual feeding on Christ by faith.",
+      31: "Article XXXI denies any repetition of Christ's once-for-all sacrifice in the Mass.",
+      37: "The civil magistrate article reflects the established-church setting of Elizabethan England."
+    },
+    chapterDefault:
+      "The Thirty-nine Articles combine catholic creedal doctrine with Reformation-era Anglican positions on Scripture, justification, sacraments, and church order."
+  }
+};
+
 function slugify(value) {
   return value
     .toLowerCase()
@@ -107,6 +200,12 @@ const documents = [
   ...window.THREE_FORMS_DATA,
   window.ANGLICAN_ARTICLES_DATA
 ];
+
+for (const document of documents) {
+  if (!document.notes && supplementalNotes[document.slug]) {
+    document.notes = supplementalNotes[document.slug];
+  }
+}
 
 function getInitialDocument() {
   const slug = new URLSearchParams(window.location.search).get("doc");
@@ -222,20 +321,28 @@ function renderNote(note) {
   return note.replaceAll("<a href=", '<a target="_blank" rel="noreferrer" href=');
 }
 
+function resolveNote(note, chapter, section) {
+  if (typeof note === "function") {
+    return note(chapter, section);
+  }
+  return note;
+}
+
 function renderNotes(chapter, section) {
   if (!noteToggle.checked) {
     return "";
   }
 
   const notes = [];
-  const chapterNote = currentDocument.notes?.chapter?.[chapter.number];
+  const chapterNote =
+    currentDocument.notes?.chapter?.[chapter.number] || currentDocument.notes?.chapterDefault;
   const sectionNote = currentDocument.notes?.section?.[`${chapter.number}.${section.number}`];
 
   if (section.number === 1 && chapterNote) {
-    notes.push(chapterNote);
+    notes.push(resolveNote(chapterNote, chapter, section));
   }
   if (sectionNote) {
-    notes.push(sectionNote);
+    notes.push(resolveNote(sectionNote, chapter, section));
   }
   if (section.notes) {
     notes.push(...section.notes);
