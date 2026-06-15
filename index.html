@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>The Westminster Confession of Faith | Reader Edition</title>
+    <meta
+      name="description"
+      content="A browser reader edition of the Westminster Confession of Faith with marginal proof texts, cross references, left navigation, and editorial notes."
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div id="reading-progress" class="reading-progress" aria-live="polite">
+      <span id="progress-percent">0%</span>
+      <span id="progress-words">0 / 0 words</span>
+    </div>
+
+    <aside class="sidebar" aria-label="Reader navigation">
+      <div class="brand">
+        <div class="printer-mark" aria-hidden="true">W</div>
+        <div>
+          <p class="eyebrow">Reader Edition</p>
+          <h1>Westminster Confession</h1>
+        </div>
+      </div>
+
+      <button id="mobile-menu-toggle" class="mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav-panel">
+        Menu
+      </button>
+
+      <div id="mobile-nav-panel" class="mobile-nav-panel">
+        <label class="search-label" for="search">Search text and references</label>
+        <input id="search" class="search" type="search" placeholder="Try justification, Sabbath, Rom 8">
+
+        <div class="toggles" aria-label="Reader controls">
+          <label><input id="proof-toggle" type="checkbox" checked> Proofs</label>
+          <label><input id="note-toggle" type="checkbox" checked> Notes</label>
+        </div>
+
+        <nav id="chapter-nav" class="chapter-nav" aria-label="Chapters"></nav>
+      </div>
+    </aside>
+
+    <main class="reader">
+      <header class="reader-header">
+        <p class="eyebrow">1646-1647 proof-text edition</p>
+        <h2>The Westminster Confession of Faith</h2>
+      </header>
+
+      <div id="content" class="content" aria-live="polite"></div>
+
+      <footer class="site-footer">
+        <a href="https://corinwagen.github.io">corinwagen.github.io</a>
+      </footer>
+    </main>
+
+    <script src="wcf-data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
