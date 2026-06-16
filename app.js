@@ -1,5 +1,7 @@
 const { westminster: westminsterNotes, supplemental: supplementalNotes } = window.CREEDS_NOTES;
 
+const dailyWcfDocument = buildDailyWcfDocument(new Date());
+
 const documents = [
   {
     ...window.WCF_DATA,
@@ -9,6 +11,7 @@ const documents = [
     unitLabel: "Chapter",
     notes: westminsterNotes
   },
+  dailyWcfDocument,
   window.ECUMENICAL_CREEDS_DATA,
   ...window.WESTMINSTER_CATECHISMS_DATA,
   ...window.THREE_FORMS_DATA,
@@ -37,12 +40,131 @@ const noteToggle = document.querySelector("#note-toggle");
 const progressPercent = document.querySelector("#progress-percent");
 const progressWords = document.querySelector("#progress-words");
 const mobileMenuToggle = document.querySelector("#mobile-menu-toggle");
+const calendarJump = document.querySelector("#calendar-jump");
 const sidebar = document.querySelector(".sidebar");
 const printerMark = document.querySelector(".printer-mark");
 const brandTitle = document.querySelector("#brand-title");
 const readerTitle = document.querySelector("#reader-title");
 const readerSubtitle = document.querySelector("#reader-subtitle");
 const readerDescription = document.querySelector("#reader-description");
+
+const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
+
+const calendarRules = {
+  "heidelberg-catechism": {
+    resolve(date) {
+      const sunday = mostRecentSunday(date);
+      const firstSunday = firstSundayOfYear(sunday.getFullYear());
+      const weekIndex = Math.round((sunday - firstSunday) / MS_PER_WEEK);
+      const chapterNumber = Math.min(Math.max(weekIndex + 1, 1), 52);
+
+      return {
+        chapterNumber,
+        label: `Jump to Lord's Day ${chapterNumber}`,
+        title: `Most recent Lord's Day: ${formatDate(sunday)}`
+      };
+    }
+  }
+};
+
+function startOfLocalDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function mostRecentSunday(date) {
+  const day = startOfLocalDay(date);
+  day.setDate(day.getDate() - day.getDay());
+  return day;
+}
+
+function firstSundayOfYear(year) {
+  const day = new Date(year, 0, 1);
+  day.setDate(day.getDate() + ((7 - day.getDay()) % 7));
+  return day;
+}
+
+function formatDate(date) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  }).format(date);
+}
+
+function getCalendarTarget(document, date = new Date()) {
+  const rule = calendarRules[document.slug];
+  if (!rule) {
+    return null;
+  }
+
+  const target = rule.resolve(date);
+  const chapter = document.chapters.find((item) => item.number === target.chapterNumber);
+  if (!chapter) {
+    return null;
+  }
+
+  return {
+    ...target,
+    chapter
+  };
+}
+
+function dayOfYearIndex(date) {
+  const day = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  const yearStart = Date.UTC(date.getFullYear(), 0, 1);
+  return Math.floor((day - yearStart) / (24 * 60 * 60 * 1000));
+}
+
+function flattenWcfSections() {
+  const sections = [];
+
+  for (const chapter of window.WCF_DATA.chapters) {
+    for (const section of chapter.sections) {
+      sections.push({
+        chapter,
+        section
+      });
+    }
+  }
+
+  return sections;
+}
+
+function buildDailyWcfDocument(date) {
+  const readings = flattenWcfSections();
+  const index = dayOfYearIndex(date) % readings.length;
+  const reading = readings[index];
+  const dayNumber = index + 1;
+  const chapter = reading.chapter;
+  const section = reading.section;
+  const coordinate = `WCF ${chapter.roman}.${section.roman}`;
+
+  return {
+    title: "Daily Westminster Confession",
+    shortTitle: "Daily WCF",
+    slug: "daily-westminster-confession",
+    mark: "D",
+    edition: `${readings.length}-day cycle through the Westminster Confession`,
+    description: `${formatDate(date)}: ${coordinate}, ${chapter.title}.`,
+    unitLabel: "Reading",
+    source: window.WCF_DATA.source,
+    notes: westminsterNotes,
+    chapters: [
+      {
+        number: chapter.number,
+        roman: chapter.roman,
+        title: chapter.title,
+        kicker: `Day ${dayNumber} of ${readings.length} - ${coordinate}`,
+        source: window.WCF_DATA.source,
+        sections: [
+          {
+            ...section
+          }
+        ]
+      }
+    ]
+  };
+}
 
 function countWords(text) {
   const words = text
@@ -108,6 +230,13 @@ function proofUrl(text) {
   return `https://www.biblegateway.com/quicksearch/?quicksearch=${encodeURIComponent(compact)}&version=KJV`;
 }
 
+function renderProofMarker(marker) {
+  if (!marker || marker.toLowerCase() === "proof") {
+    return "";
+  }
+  return `<span class="proof-marker">${escapeHtml(marker)}</span>`;
+}
+
 function renderProofs(section) {
   if (!proofToggle.checked || !section.proofs || section.proofs.length === 0) {
     return "";
@@ -120,7 +249,7 @@ function renderProofs(section) {
         .map(
           (proof) => `
             <p>
-              <span class="proof-marker">${escapeHtml(proof.marker)}</span>
+              ${renderProofMarker(proof.marker)}
               <span>${escapeHtml(proof.text)}</span>
               <a class="proof-link" href="${proofUrl(proof.text)}">open</a>
             </p>
@@ -254,6 +383,14 @@ function renderReaderHeader() {
   const hasProofs = documentHasProofs(currentDocument);
   proofToggle.disabled = !hasProofs;
   proofToggle.closest("label").classList.toggle("is-disabled", !hasProofs);
+
+  const calendarTarget = getCalendarTarget(currentDocument);
+  calendarJump.hidden = !calendarTarget;
+  if (calendarTarget) {
+    calendarJump.textContent = calendarTarget.label;
+    calendarJump.title = calendarTarget.title;
+    calendarJump.setAttribute("aria-label", `${calendarTarget.label}. ${calendarTarget.title}.`);
+  }
 }
 
 function renderEmptyState() {
@@ -512,12 +649,46 @@ function toggleMobileMenu() {
   requestProgressUpdate();
 }
 
+function setChapterHash(id) {
+  const url = new URL(window.location.href);
+  url.hash = id;
+  window.history.replaceState(null, "", url);
+}
+
+function jumpToCalendarTarget() {
+  const target = getCalendarTarget(currentDocument);
+  if (!target) {
+    return;
+  }
+
+  if (search.value) {
+    search.value = "";
+    renderContent();
+  }
+
+  window.requestAnimationFrame(() => {
+    const id = chapterId(target.chapter);
+    const element = document.getElementById(id);
+    if (!element) {
+      return;
+    }
+
+    if (window.innerWidth <= 900 && sidebar.classList.contains("nav-open")) {
+      toggleMobileMenu();
+    }
+    setChapterHash(id);
+    element.scrollIntoView({ behavior: "smooth", block: "start" });
+    setActiveChapter(id);
+  });
+}
+
 function bindEvents() {
   search.addEventListener("input", renderContent);
   proofToggle.addEventListener("change", renderContent);
   noteToggle.addEventListener("change", renderContent);
   documentNav.addEventListener("click", handleDocumentNavClick);
   mobileMenuToggle.addEventListener("click", toggleMobileMenu);
+  calendarJump.addEventListener("click", jumpToCalendarTarget);
   window.addEventListener("scroll", requestProgressUpdate, { passive: true });
   window.addEventListener("resize", requestProgressUpdate);
 }

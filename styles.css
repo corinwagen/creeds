@@ -220,6 +220,28 @@ input {
   color: #999999;
 }
 
+.calendar-jump {
+  width: 100%;
+  min-height: 2.15rem;
+  border: 1px solid black;
+  border-radius: 0;
+  padding: 0.35em 0.55em;
+  background: black;
+  color: white;
+  font-size: 0.84rem;
+  font-weight: 550;
+  text-align: center;
+  cursor: pointer;
+}
+
+.calendar-jump:hover {
+  background: #333333;
+}
+
+.calendar-jump[hidden] {
+  display: none;
+}
+
 .chapter-nav {
   display: flex;
   flex-direction: column;
@@ -593,6 +615,13 @@ sup {
     font-size: 0.76rem;
   }
 
+  .calendar-jump {
+    grid-column: 1;
+    grid-row: 3;
+    min-height: 2rem;
+    font-size: 0.78rem;
+  }
+
   .chapter-nav {
     grid-column: 1 / -1;
     grid-row: 4;
@@ -733,8 +762,14 @@ sup {
     width: 100%;
   }
 
-  .chapter-nav {
+  .calendar-jump {
+    grid-column: 1;
     grid-row: 4;
+    width: 100%;
+  }
+
+  .chapter-nav {
+    grid-row: 5;
     grid-auto-columns: minmax(7.25rem, 9.5rem);
   }
 
